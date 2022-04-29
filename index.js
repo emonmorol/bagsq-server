@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
 const port = process.env.PORT || 5000;
 const app = express();
@@ -16,14 +16,33 @@ const client = new MongoClient(uri);
 async function run() {
   try {
     await client.connect();
-
     const productCollection = client.db("bagsQ").collection("products");
+
+    //get all inventory
     app.use("/products", async (req, res) => {
       console.log("db connected");
       const query = {};
       const cursor = productCollection.find(query);
       const products = await cursor.toArray();
       res.json(products);
+    });
+
+    //update quantity
+    app.patch("/update/:id", async (req, res) => {
+      const id = req.params.id;
+      const updatedQuantity = req.body.updatedQuantity;
+      const filteredProduct = { _id: ObjectId(id) };
+      console.log(id, updatedQuantity, filteredProduct);
+      const updateDoc = {
+        $set: {
+          quantity: updatedQuantity,
+        },
+      };
+      const updatedProduct = await productCollection.updateOne(
+        filteredProduct,
+        updateDoc
+      );
+      res.send(updatedProduct);
     });
   } finally {
   }
