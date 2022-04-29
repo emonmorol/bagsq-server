@@ -19,7 +19,7 @@ async function run() {
     const productCollection = client.db("bagsQ").collection("products");
 
     //get all inventory
-    app.use("/products", async (req, res) => {
+    app.get("/products", async (req, res) => {
       console.log("db connected");
       const query = {};
       const cursor = productCollection.find(query);
@@ -27,12 +27,18 @@ async function run() {
       res.json(products);
     });
 
+    //find by id
+    app.get("/inventory/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const product = await productCollection.findOne(query);
+      res.send(product);
+    });
     //update quantity
     app.patch("/update/:id", async (req, res) => {
       const id = req.params.id;
-      const updatedQuantity = req.body.updatedQuantity;
+      const updatedQuantity = req.body.newQuantity;
       const filteredProduct = { _id: ObjectId(id) };
-      console.log(id, updatedQuantity, filteredProduct);
       const updateDoc = {
         $set: {
           quantity: updatedQuantity,
