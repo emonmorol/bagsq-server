@@ -37,8 +37,9 @@ async function run() {
     //update quantity
     app.patch("/update/:id", async (req, res) => {
       const id = req.params.id;
-      const updatedQuantity = req.body.newQuantity;
+      const updatedQuantity = req.body.updatedQuantity;
       const filteredProduct = { _id: ObjectId(id) };
+      console.log(id, updatedQuantity, filteredProduct);
       const updateDoc = {
         $set: {
           quantity: updatedQuantity,
@@ -49,6 +50,13 @@ async function run() {
         updateDoc
       );
       res.send(updatedProduct);
+    });
+
+    app.delete("/inventory/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await productCollection.deleteOne(query);
+      res.send(result);
     });
   } finally {
   }
