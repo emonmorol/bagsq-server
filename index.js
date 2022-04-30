@@ -27,6 +27,14 @@ async function run() {
       res.json(products);
     });
 
+    //add inventory
+    app.post("/addinventory", async (req, res) => {
+      const product = req.body;
+      console.log(product);
+      const result = await productCollection.insertOne(product);
+      res.send(result);
+    });
+
     //find by id
     app.get("/inventory/:id", async (req, res) => {
       const id = req.params.id;
