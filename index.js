@@ -34,6 +34,14 @@ async function run() {
       res.json(reviews);
     });
 
+    //get single review by id
+    app.get("/review/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const review = await reviewsCollection.findOne(query);
+      res.json(review);
+    });
+
     //add inventory
     app.post("/addinventory", async (req, res) => {
       const product = req.body;
