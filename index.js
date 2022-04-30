@@ -16,6 +16,7 @@ async function run() {
   try {
     await client.connect();
     const productCollection = client.db("bagsQ").collection("products");
+    const reviewsCollection = client.db("bagsQ").collection("reviews");
 
     //get all inventory
     app.get("/products", async (req, res) => {
@@ -23,6 +24,14 @@ async function run() {
       const cursor = productCollection.find(query);
       const products = await cursor.toArray();
       res.json(products);
+    });
+
+    //get all reviews
+    app.get("/reviews", async (req, res) => {
+      const query = {};
+      const cursor = reviewsCollection.find(query);
+      const reviews = await cursor.toArray();
+      res.json(reviews);
     });
 
     //add inventory
