@@ -10,7 +10,6 @@ app.use(cors());
 app.use(express.json());
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.k0zgs.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
-console.log(uri);
 const client = new MongoClient(uri);
 
 async function run() {
@@ -20,7 +19,6 @@ async function run() {
 
     //get all inventory
     app.get("/products", async (req, res) => {
-      console.log("db connected");
       const query = {};
       const cursor = productCollection.find(query);
       const products = await cursor.toArray();
@@ -30,9 +28,17 @@ async function run() {
     //add inventory
     app.post("/addinventory", async (req, res) => {
       const product = req.body;
-      console.log(product);
       const result = await productCollection.insertOne(product);
       res.send(result);
+    });
+
+    //filter items according to user
+    app.get("/myitem", async (req, res) => {
+      const email = req.query.email;
+      const query = { email: email };
+      const cursor = productCollection.find(query);
+      const myProducts = await cursor.toArray();
+      res.send(myProducts);
     });
 
     //find by id
@@ -47,7 +53,6 @@ async function run() {
       const id = req.params.id;
       const updatedQuantity = req.body.updatedQuantity;
       const filteredProduct = { _id: ObjectId(id) };
-      console.log(id, updatedQuantity, filteredProduct);
       const updateDoc = {
         $set: {
           quantity: updatedQuantity,
@@ -60,6 +65,7 @@ async function run() {
       res.send(updatedProduct);
     });
 
+    //delete inventory
     app.delete("/inventory/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
