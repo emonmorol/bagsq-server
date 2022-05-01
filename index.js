@@ -7,12 +7,12 @@ const jwt = require("jsonwebtoken");
 const port = process.env.PORT || 5000;
 const app = express();
 
-const corsOptions = {
-  origin: "https://bagsq12.web.app/",
+const corsConfig = {
+  origin: true,
   credentials: true,
-  optionSuccessStatus: 200,
 };
-app.use(cors(corsOptions));
+app.use(cors(corsConfig));
+app.options("*", cors(corsConfig));
 app.use(express.json());
 
 function verifyUser(req, res, next) {
