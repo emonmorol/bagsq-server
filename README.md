@@ -22,3 +22,4 @@
 - MongoDB
 - dotenv
 - Cors
+- JsonWebToken
