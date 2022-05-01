@@ -2,12 +2,30 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const jwt = require("jsonwebtoken");
 
 const port = process.env.PORT || 5000;
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+function verifyUser(req, res, next) {
+  const authorizationToken = req.headers.authorization;
+  if (!authorizationToken) {
+    return res.status(401).send({ message: "Unauthorized Access" });
+  }
+  const mainToken = authorizationToken.split(" ")[1];
+  jwt.verify(mainToken, process.env.SECRET_ACCESS_TOKEN, (err, decoded) => {
+    if (err) {
+      return res
+        .status(403)
+        .send({ message: "Sorry!! Your Access Is Forbidden" });
+    }
+    req.decoded = decoded;
+    next();
+  });
+}
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.k0zgs.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 const client = new MongoClient(uri);
@@ -49,13 +67,18 @@ async function run() {
       res.send(result);
     });
 
-    //filter items according to user
-    app.get("/myitem", async (req, res) => {
+    //filter items according to user for myItem
+    app.get("/myitem", verifyUser, async (req, res) => {
       const email = req.query.email;
-      const query = { email: email };
-      const cursor = productCollection.find(query);
-      const myProducts = await cursor.toArray();
-      res.send(myProducts);
+      const decodEmail = req.decoded.email;
+      if (email === decodEmail) {
+        const query = { email: email };
+        const cursor = productCollection.find(query);
+        const myProducts = await cursor.toArray();
+        res.send(myProducts);
+      } else {
+        res.status(403).send({ message: "Sorry!! Your Access Is Forbidden" });
+      }
     });
 
     //find by id
@@ -65,6 +88,7 @@ async function run() {
       const product = await productCollection.findOne(query);
       res.send(product);
     });
+
     //update quantity
     app.patch("/update/:id", async (req, res) => {
       const id = req.params.id;
@@ -80,6 +104,13 @@ async function run() {
         updateDoc
       );
       res.send(updatedProduct);
+    });
+
+    app.post("/account", async (req, res) => {
+      const email = req.body;
+      const userToken = jwt.sign(email, process.env.SECRET_ACCESS_TOKEN);
+      console.log(email);
+      res.send({ token: userToken });
     });
 
     //delete inventory
