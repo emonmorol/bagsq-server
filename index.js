@@ -8,8 +8,8 @@ const port = process.env.PORT || 5000;
 const app = express();
 
 const corsOptions = {
-  origin: "http://localhost:3000",
-  credentials: true, //access-control-allow-credentials:true
+  origin: "http://localhost:3000","https://bagsq12.web.app/",
+  credentials: true,
   optionSuccessStatus: 200,
 };
 app.use(cors(corsOptions));
