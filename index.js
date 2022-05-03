@@ -114,7 +114,6 @@ async function run() {
     app.post("/account", async (req, res) => {
       const email = req.body;
       const userToken = jwt.sign(email, process.env.SECRET_ACCESS_TOKEN);
-      console.log(email);
       res.send({ token: userToken });
     });
 
