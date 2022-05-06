@@ -44,9 +44,17 @@ async function run() {
     //get all inventory
     app.get("/products", async (req, res) => {
       const query = {};
+      const limit = Number(req.query.limit);
+      const pageNumber = Number(req.query.pageNumber);
+      console.log(limit);
       const cursor = productCollection.find(query);
-      const products = await cursor.toArray();
-      res.json(products);
+      const products = await cursor
+        .skip(limit * pageNumber)
+        .limit(limit)
+        .toArray();
+      const count = await productCollection.estimatedDocumentCount();
+      console.log(count);
+      res.json({ products, count });
     });
 
     //get all reviews
